@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mudkip_frontend/mudkipc.dart';
 
 // ignore: must_be_immutable
 class AppShell extends StatefulWidget {
@@ -17,14 +16,7 @@ class AppShellState extends State<AppShell> {
 
   @override
   void initState() {
-    MudkiPC.pachinko.addListener(() => setState(() {}));
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    MudkiPC.pachinko.removeListener(() => setState(() {}));
-    super.dispose();
   }
 
   @override
@@ -33,43 +25,15 @@ class AppShellState extends State<AppShell> {
     return Scaffold(
       appBar: AppBar(title: const Text('MudkiPC'), actions: [
         if (showRail)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          const Padding(
+            padding: EdgeInsets.all(8.0),
             child: SizedBox(
               width: 400,
-              child: SearchAnchor.bar(
-                suggestionsBuilder: (context, search) async {
-                  return await MudkiPC.pachinko
-                      .generateSuggestions(context, search);
-                },
-                barLeading: SizedBox(
-                    height: 100,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: MudkiPC.pachinko.getChips())),
-                searchController: MudkiPC.pachinko.searchController,
-              ),
+              child: Placeholder(),
             ),
           )
         else
-          SearchAnchor(
-              viewLeading: Wrap(alignment: WrapAlignment.start, children: [
-                ...MudkiPC.pachinko.getChips().map((chip) {
-                  return SizedBox(width: 100, child: chip);
-                })
-              ]),
-              builder: (context, search) {
-                return IconButton(
-                    onPressed: () {
-                      MudkiPC.pachinko.searchController.openView();
-                    },
-                    icon: const Icon(size: 30, Icons.search));
-              },
-              suggestionsBuilder: (context, search) async {
-                return await MudkiPC.pachinko
-                    .generateSuggestions(context, search);
-              },
-              searchController: MudkiPC.pachinko.searchController),
+          const Placeholder(),
         const SizedBox(width: 20),
       ]),
       drawer: Drawer(
@@ -90,6 +54,12 @@ class AppShellState extends State<AppShell> {
                   context.push("/about");
                 },
               ),
+              ListTile(
+                  title: const Text("Debug"),
+                  leading: const Icon(Icons.bug_report_rounded),
+                  onTap: () {
+                    context.push("/debug");
+                  }),
             ],
           )),
       bottomNavigationBar: showRail

@@ -55,6 +55,13 @@ dependencies:
   introduction_screen: ^3.1.14
   geekyants_flutter_gauges: ^1.0.4
   converter: ^0.4.0
+  web_socket_channel: ^3.0.3
+  ulid: ^2.0.1
+  flutter_secure_storage: ^4.2.1
+  talker: ^5.0.2
+  talker_flutter: ^5.0.2
+  web_socket_client: ^0.2.1
+  
 
 dev_dependencies:
   flutter_test:
@@ -90,8 +97,6 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/arceus/
-    - assets/arceus/windows/
     - assets/db/
     - assets/svg/
     - assets/images/sprites/
