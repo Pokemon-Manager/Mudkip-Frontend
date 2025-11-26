@@ -89,6 +89,12 @@ class MudkiPC {
     return;
   }
 
+  static String? _dbPath;
+
+  static set databasePath(String? path) => _dbPath = path;
+
+  static String get databasePath => _dbPath!;
+
   static Talker? _talker;
 
   static Talker get talker => _talker ??= Talker();

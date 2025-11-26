@@ -1,5 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mudkip_frontend/core/reyveld.dart';
+
+Widget reyveldConnectionIcon() => StreamBuilder(
+    stream: Reyveld.statusChange,
+    initialData: ReyveldConnectionState.disconnected,
+    builder: (context, snapshot) {
+      icon(ReyveldConnectionState eventType) {
+        if (eventType == ReyveldConnectionState.connectedSecured) {
+          return const Icon(Icons.wifi_password_rounded);
+        } else if (eventType == ReyveldConnectionState.connectedUnsecured) {
+          return const Icon(Icons.wifi_rounded);
+        } else {
+          return const Icon(Icons.wifi_off_rounded);
+        }
+      }
+
+      text(ReyveldConnectionState eventType) {
+        switch (eventType) {
+          case ReyveldConnectionState.disconnected:
+            return "Disconnected from Reyveld";
+          case ReyveldConnectionState.connectedUnsecured:
+            return "Connected to Reyveld (unsecured)";
+          case ReyveldConnectionState.connectedSecured:
+            return "Connected to Reyveld (secured)";
+        }
+      }
+
+      return Tooltip(message: text(Reyveld.state), child: icon(Reyveld.state));
+    });
 
 // ignore: must_be_immutable
 class AppShell extends StatefulWidget {
@@ -33,7 +62,9 @@ class AppShellState extends State<AppShell> {
             ),
           )
         else
-          const Placeholder(),
+          Row(
+            children: [reyveldConnectionIcon()],
+          ),
         const SizedBox(width: 20),
       ]),
       drawer: Drawer(
@@ -126,6 +157,15 @@ class SideNavRail extends StatelessWidget {
       },
       labelType: NavigationRailLabelType.all,
       destinations: Destinations.getDestinationsForRail(),
+      trailing: Expanded(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 32.0),
+            child: reyveldConnectionIcon(),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -145,9 +185,7 @@ class PCDestination extends Destination {
 class PokeDexDestination extends Destination {
   PokeDexDestination()
       : super(
-            label: 'PokéDex',
-            icon: Icons.phone_android_rounded,
-            path: '/pokedex');
+            label: 'PokéDex', icon: Icons.phone_android_rounded, path: '/dex');
 }
 
 class Destinations {

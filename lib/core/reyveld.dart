@@ -6,14 +6,23 @@ import 'package:talker/talker.dart';
 import 'package:web_socket_client/web_socket_client.dart';
 import 'package:ulid/ulid.dart';
 
-enum EventType { disconnected, connectedUnsecured, connectedSecured }
+enum ReyveldConnectionState {
+  disconnected,
+  connectedUnsecured,
+  connectedSecured
+}
 
 class Reyveld {
   static WebSocket? _socket;
 
-  static final StreamController<EventType> _statusController =
-      StreamController<EventType>.broadcast();
-  static Stream<EventType> get statusChange => _statusController.stream;
+  static final StreamController<ReyveldConnectionState> _statusController =
+      StreamController<ReyveldConnectionState>.broadcast();
+  static Stream<ReyveldConnectionState> get statusChange =>
+      _statusController.stream;
+
+  static ReyveldConnectionState _state = ReyveldConnectionState.disconnected;
+
+  static ReyveldConnectionState get state => _state;
 
   static final Map<String, ReyveldTask> _tasks = {};
 
@@ -26,23 +35,24 @@ class Reyveld {
     _socket = WebSocket(Uri.parse('ws://127.0.0.1:7274/lua'), backoff: backoff);
     _socket!.connection.listen((data) {
       if (data is Connected) {
-        _statusController.add(EventType.connectedUnsecured);
+        _statusController.add(ReyveldConnectionState.connectedUnsecured);
       } else if (data is Disconnected) {
-        _statusController.add(EventType.disconnected);
+        _statusController.add(ReyveldConnectionState.disconnected);
       } else if (data is Reconnected) {
-        _statusController.add(EventType.connectedUnsecured);
+        _statusController.add(ReyveldConnectionState.connectedUnsecured);
       } else if (data is Reconnecting) {
-        _statusController.add(EventType.disconnected);
+        _statusController.add(ReyveldConnectionState.disconnected);
       } else if (data is Disconnecting) {
-        _statusController.add(EventType.disconnected);
+        _statusController.add(ReyveldConnectionState.disconnected);
       } else if (data is Connecting) {
-        _statusController.add(EventType.disconnected);
+        _statusController.add(ReyveldConnectionState.disconnected);
       }
     });
 
     statusChange.listen((event) async {
       MudkiPC.talker.info("Reyveld event: $event");
-      if (event == EventType.connectedUnsecured) {
+      _state = event;
+      if (event == ReyveldConnectionState.connectedUnsecured) {
         final currentToken = await MudkiPC.getReyveldToken();
         final token = await Reyveld.run("""
 local appname = "MudkiPC"
@@ -78,7 +88,7 @@ return Contract(appname, tk, pols)
           await MudkiPC.setReyveldToken(token);
         }
         MudkiPC.talker.info("Reyveld connection secured.");
-        _statusController.sink.add(EventType.connectedSecured);
+        _statusController.sink.add(ReyveldConnectionState.connectedSecured);
       }
     });
   }

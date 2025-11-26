@@ -9,10 +9,11 @@ class PCScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: Reyveld.statusChange,
-        initialData: EventType.disconnected,
+        initialData: ReyveldConnectionState.disconnected,
         builder: (context, snapshot) {
           switch (snapshot.data!) {
-            case EventType.disconnected || EventType.connectedUnsecured:
+            case ReyveldConnectionState.disconnected ||
+                  ReyveldConnectionState.connectedUnsecured:
               return Center(
                   child: Column(children: [
                 Text(
@@ -24,7 +25,7 @@ class PCScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ]));
-            case EventType.connectedSecured:
+            case ReyveldConnectionState.connectedSecured:
               return const Placeholder();
           }
         });
